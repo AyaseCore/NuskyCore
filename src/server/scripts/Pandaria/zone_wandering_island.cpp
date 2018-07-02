@@ -29,6 +29,95 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+
+#define ACTION_TALK 1
+
+class npc_master_shang_xi : public CreatureScript
+{
+    enum master_shang
+    {
+
+        SPELL_MASTERS_FLAME = 114610,
+        SPELL_CREATE_MASTERS_FLAME = 114611,
+        SPELL_SNATCH_MASTERS_FLAME = 114746,
+
+        ITEM_MASTERS_FLAME = 80212,
+
+        QUEST_LESSONS_OF_BURNING_SCROLL = 29408,
+    };
+
+public:
+    npc_master_shang_xi() : CreatureScript("npc_master_shang_xi") { }
+
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
+    {
+        if (quest->GetQuestId() == QUEST_LESSONS_OF_BURNING_SCROLL) // The Lesson of the Burning Scroll
+        {
+            creature->AddAura(SPELL_MASTERS_FLAME, creature);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+        }
+
+        return true;
+    }
+
+    struct npc_master_shang_xi_AI : public ScriptedAI
+    {
+        npc_master_shang_xi_AI(Creature* creature) : ScriptedAI(creature)
+        {
+            resetTimer = 10000;
+        }
+
+        uint32 resetTimer;
+
+        void SpellHit(Unit* caster, const SpellInfo* pSpell)
+        {
+            if (pSpell->Id == SPELL_SNATCH_MASTERS_FLAME) // Snatch Master's Flame
+            {
+                if (caster->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if (caster->ToPlayer()->GetQuestStatus(QUEST_LESSONS_OF_BURNING_SCROLL) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->CastSpell(caster, SPELL_CREATE_MASTERS_FLAME, true);
+                        me->RemoveAurasDueToSpell(SPELL_MASTERS_FLAME);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                        Talk(0);
+                    }
+                }
+            }
+        }
+
+        void MoveInLineOfSight(Unit * who)
+        {
+            Player * const player = who->ToPlayer();
+            if (!player)
+                return;
+
+            if (player->GetQuestStatus(QUEST_LESSONS_OF_BURNING_SCROLL) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(ITEM_MASTERS_FLAME) && !me->HasAura(SPELL_MASTERS_FLAME))
+                me->AddAura(SPELL_MASTERS_FLAME, me);
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            // In case noone used spellclick - reset questgiver flag in periodic way
+            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+                return;
+
+            if (resetTimer <= diff)
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                resetTimer = 10000;
+            }
+            else
+                resetTimer -= diff;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_master_shang_xi_AI(creature);
+    }
+};
 
 class go_wandering_weapon_rack : public GameObjectScript
 {
@@ -74,7 +163,136 @@ public:
     }
 };
 
+class npc_training_target : public CreatureScript
+{
+public:
+    npc_training_target() : CreatureScript("npc_training_target") { }
+
+    struct npc_training_targetAI : public ScriptedAI
+    {
+        npc_training_targetAI(Creature* creature) : ScriptedAI(creature) {}
+        
+        void Reset() override
+        {
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+		void EnterCombat(Unit * unit) override
+        {
+            return;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_training_targetAI(creature);
+    }
+};
+
+class npc_tushui_trainee : public CreatureScript
+{
+public:
+    npc_tushui_trainee() : CreatureScript("npc_tushui_trainee") { }
+
+    struct npc_tushui_trainee_AI : public ScriptedAI
+    {
+        npc_tushui_trainee_AI(Creature* creature) : ScriptedAI(creature) {}
+
+        bool isInCombat;
+        uint64 playerGUID;
+        uint32 punch1;
+        uint32 punch2;
+       	uint32 punch3;
+
+        void Reset()
+        {
+            punch1 = 1000;
+            punch2 = 3500;
+            punch3 = 6000;
+            playerGUID = 0;
+            isInCombat = false;
+           	me->SetReactState(REACT_DEFENSIVE);
+            me->setFaction(7);
+            me->SetFullHealth();
+        }
+
+        void DamageTaken(Unit* attacker, uint32& damage)
+        {
+            if (me->HealthBelowPctDamaged(16.67f, damage))
+            {
+                me->setFaction(35);
+
+                if (attacker && attacker->GetTypeId() == TYPEID_PLAYER)
+                    attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
+
+                damage = 0;
+                me->CombatStop();
+                isInCombat = false;
+                me->HandleEmote(EMOTE_ONESHOT_SALUTE);
+                Talk(urand(0, 7));
+                me->GetMotionMaster()->MovePoint(0, 1446.322876f, 3389.027588f, 173.782471f);
+        	}
+        }
+
+        void EnterCombat(Unit* unit)
+        {
+        	isInCombat = true;
+        }
+
+        void JustRespawned()
+        {
+        	Reset();
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (isInCombat)
+            {
+            	DoMeleeAttackIfReady();
+                return;
+            }
+            else
+            {
+            	if (punch1 <= diff)
+                {
+                	me->HandleEmote(35);
+                    punch1 = 7500;
+                }
+                else
+                   	punch1 -= diff;
+
+                if (punch2 <= diff)
+                {
+                    me->HandleEmote(36);
+                    punch2 = 7500;
+                }
+                else
+                    punch2 -= diff;
+
+               	if (punch3 <= diff)
+                {
+                    me->HandleEmote(37);
+                    punch3 = 7500;
+                }
+                else
+                    punch3 -= diff;
+            }
+
+            if (me->GetPositionX() == 1446.322876f && me->GetPositionY() == 3389.027588f && me->GetPositionZ() == 173.782471f)
+                me->ForcedDespawn(1000);
+    	}
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+    	return new npc_tushui_trainee_AI(creature);
+    }
+};
+
 void AddSC_zone_wandering_island()
 {
+    new npc_master_shang_xi();
 	new go_wandering_weapon_rack();
+    new npc_training_target();
+    new npc_tushui_trainee();
 }
