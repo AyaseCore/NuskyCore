@@ -384,7 +384,6 @@ void AddSC_ungoro_crater();
 void AddSC_winterspring();
 
 // Northrend
-
 void AddSC_boss_slad_ran();
 void AddSC_boss_moorabi();
 void AddSC_boss_drakkari_colossus();
@@ -682,22 +681,11 @@ void AddSC_isle_of_thunder();
 //void AddSC_valley_of_the_four_winds();
 void AddSC_zone_wandering_island();
 
-// Pandaria Raids :: Siege of Orgrimmar
-void AddSC_instance_SiegeOfOrgrimmar();
-void AddSC_boss_Galakras();
-void AddSC_boss_GarroshHellscream();
-void AddSC_boss_GeneralNazgrim();
-void AddSC_boss_IronJuggernaut();
-void AddSC_boss_Immerseus();
-void AddSC_boss_KorKron();
-void AddSC_boss_Malkorok();
-void AddSC_boss_Norushen();
-void AddSC_boss_ParagonsOfTheKlaxxi();
-void AddSC_boss_ShaOfPride();
-void AddSC_boss_SiegecrafterBlackfuse();
-void AddSC_boss_SpoilsOfPandaria();
-void AddSC_boss_TheFallenProtectors();
-void AddSC_boss_Thok();
+// Siege of Orgrimmar
+void AddSC_instance_siege_of_orgrimmar();
+void AddSC_siege_of_orgrimmar();
+void AddSC_boss_immerseus();
+void AddSC_fallen_protectors();
 
 // Pets
 void AddSC_deathknight_pet_scripts();
@@ -1446,22 +1434,11 @@ void AddPandariaScripts()
     //AddSC_valley_of_the_four_winds();
     AddSC_zone_wandering_island();
 
-    // Pandaria Raids :: Siege of Orgrimmar
-	AddSC_instance_SiegeOfOrgrimmar();
-	AddSC_boss_Galakras();
-	AddSC_boss_GarroshHellscream();
-	AddSC_boss_GeneralNazgrim();
-	AddSC_boss_IronJuggernaut();
-	AddSC_boss_Immerseus();
-	AddSC_boss_KorKron();
-	AddSC_boss_Malkorok();
-	AddSC_boss_Norushen();
-	AddSC_boss_ParagonsOfTheKlaxxi();
-	AddSC_boss_ShaOfPride();
-	AddSC_boss_SiegecrafterBlackfuse();
-	AddSC_boss_SpoilsOfPandaria();
-	AddSC_boss_TheFallenProtectors();
-	AddSC_boss_Thok();
+    // Siege of Orgrimmar
+	AddSC_instance_siege_of_orgrimmar();
+	AddSC_siege_of_orgrimmar();
+	AddSC_boss_immerseus();
+	AddSC_fallen_protectors();
 #endif
 }
 

@@ -19,7 +19,7 @@
 
 /* ScriptData
 SDName: wandering island (part 1)
-SD%Complete: 0
+SD%Complete: 10%
 SDComment: Placeholder
 SDCategory: wandering_island
 EndScriptData */
@@ -29,7 +29,6 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
 #define ACTION_TALK 1
@@ -199,40 +198,41 @@ public:
     {
         npc_tushui_trainee_AI(Creature* creature) : ScriptedAI(creature) {}
 
-        bool IsInCombat;
-        uint64 playerGUID;
         uint32 punch1;
         uint32 punch2;
-       	uint32 punch3;
+        uint32 punch3;
+        uint64 playerGUID;
+        bool IsInCombat;
 
         void Reset()
         {
-            punch1 = 1000;
+        	punch1 = 1000;
             punch2 = 3500;
             punch3 = 6000;
             playerGUID = 0;
             IsInCombat = false;
-           	me->SetReactState(REACT_DEFENSIVE);
+            me->SetReactState(REACT_DEFENSIVE);
             me->setFaction(7);
             me->SetFullHealth();
         }
 
         void DamageTaken(Unit* attacker, uint32& damage)
         {
-            if (me->HealthBelowPctDamaged(16.67f, damage))
+            if (me->HealthBelowPctDamaged(5, damage))
             {
-                me->setFaction(35);
-
                 if (attacker && attacker->GetTypeId() == TYPEID_PLAYER)
                     attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
 
                 damage = 0;
                 me->CombatStop();
+                me->setFaction(35);
+                me->SetFullHealth();
                 IsInCombat = false;
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                 Talk(urand(0, 7));
                 me->GetMotionMaster()->MovePoint(0, 1446.322876f, 3389.027588f, 173.782471f);
-        	}
+                me->DespawnOrUnsummon(3000);
+            }
         }
 
         void EnterCombat(Unit* unit)
@@ -245,50 +245,45 @@ public:
         	Reset();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
-            if (IsInCombat)
+        	if (IsInCombat)
             {
             	DoMeleeAttackIfReady();
                 return;
             }
             else
             {
-            	if (punch1 <= diff)
+                if (punch1 <= diff)
                 {
-                	me->HandleEmoteCommand(35);
+                    me->HandleEmoteCommand(35);
                     punch1 = 7500;
                 }
                 else
-                   	punch1 -= diff;
+                    punch1 -= diff;
 
                 if (punch2 <= diff)
                 {
-                    me->HandleEmoteCommand(36);
+                	me->HandleEmoteCommand(36);
                     punch2 = 7500;
                 }
                 else
                     punch2 -= diff;
 
-               	if (punch3 <= diff)
+                if (punch3 <= diff)
                 {
                     me->HandleEmoteCommand(37);
                     punch3 = 7500;
                 }
                 else
                     punch3 -= diff;
-            }
-
-			if (me->GetPositionX() == 1446.322876f && me->GetPositionY() == 3389.027588f && me->GetPositionZ() == 173.782471f)
-			{
-				//me->ForcedDespawn(1000);
-			}
-    	}
+            } 
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const
     {
-    	return new npc_tushui_trainee_AI(creature);
+        return new npc_tushui_trainee_AI(creature);
     }
 };
 
@@ -310,23 +305,24 @@ class npc_huojin_trainee : public CreatureScript
             me->SetReactState(REACT_DEFENSIVE);
             me->SetFullHealth();
             me->setFaction(7);
-        	IsInCombat = false;
+            IsInCombat = false;
         }
 
         void DamageTaken(Unit* attacker, uint32& damage)
         {
             if (me->HealthBelowPctDamaged(16.67f, damage))
             {
-            	damage = 0;
                 if (attacker && attacker->GetTypeId() == TYPEID_PLAYER)
                     attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
-                    
+                   
+                damage = 0;   
                 me->CombatStop();
                 me->setFaction(35);
                 IsInCombat = false;
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                	Talk(urand(0, 7));
                 me->GetMotionMaster()->MovePoint(0, 1446.322876f, 3389.027588f, 173.782471f);
+                me->DespawnOrUnsummon(3000);
             }
         }
 
@@ -351,17 +347,12 @@ class npc_huojin_trainee : public CreatureScript
             {
             	if (punch <= diff)
                 {
-                    me->HandleEmoteCommand(35);
-                    punch = urand(500, 3000);
+                     me->HandleEmoteCommand(35);
+                     punch = urand(500, 3000);
                 }
                 else
-                	punch -= diff;
+                   	punch -= diff;
             }
-
-			if (me->GetPositionX() == 1446.322876f && me->GetPositionY() == 3389.027588f && me->GetPositionZ() == 173.782471f)
-			{
-				//me->ForcedDespawn(1000);
-			}
         }
     };
 
@@ -829,6 +820,224 @@ public:
     }
 };
 
+class npc_trainee_stifled_pride : public CreatureScript
+{
+public :
+    npc_trainee_stifled_pride() : CreatureScript("npc_trainee_stifled_pride")
+    {
+        m_gossipHelloMessage = "Null gossip option";
+    }
+
+    bool OnGossipHello(Player *p, Creature *c)
+    {
+        if (p && p->hasQuest(QUEST_THE_LESSON_OF_STIFLED_PRIDE) && !p->IsInCombat() && p->GetQuestStatus(QUEST_THE_LESSON_OF_STIFLED_PRIDE) == QUEST_STATUS_INCOMPLETE)
+        {
+            m_gossipHelloMessage = "Je vous defie !";
+            p->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, m_gossipHelloMessage, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            p->PlayerTalkClass->SendGossipMenu(NPC_QUEST_REWARD, c->GetGUID());
+
+            return true;
+        }
+        else if (p && (!p->hasQuest(QUEST_THE_LESSON_OF_STIFLED_PRIDE) || p->GetQuestStatus(QUEST_THE_LESSON_OF_STIFLED_PRIDE) != QUEST_STATUS_INCOMPLETE))
+        {
+            m_gossipHelloMessage = "Il y a erreur... je vous prie de m'excuser";
+            p->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, m_gossipHelloMessage, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+            p->PlayerTalkClass->SendGossipMenu(NPC_QUEST_REWARD, c->GetGUID());
+            return true;
+        }
+        else if (!p)
+            return false;
+
+        return false;
+    }
+
+    bool OnGossipSelect(Player *p, Creature *c, uint32 sender, uint32 action)
+    {
+        p->PlayerTalkClass->ClearMenus();
+
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            StartQuestEvent(c, p);
+
+        p->CLOSE_GOSSIP_MENU();
+
+        return true;
+    }
+
+    struct npc_trainee_stifled_prideAI : public ScriptedAI
+    {
+    public :
+        npc_trainee_stifled_prideAI(Creature* c) : ScriptedAI(c) { }
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit *who)
+        {
+            ScheduleTraineeEvents();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+            {
+                switch(me->getFaction())
+                {
+                case 14:
+                    ResetToNormal(NULL);
+                    break;
+                case 35:
+                    return;
+                }
+            }
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            if (events.ExecuteEvent() == EVENT_TRAINEE_SPELL)
+            {
+                switch(me->GetEntry())
+                {
+                case HUOJIN_TRAINEE_1:
+                case HUOJIN_TRAINEE_2:
+                    if (me->GetVictim())
+                        DoCast(me->GetVictim(), SPELL_JAB, true);
+                    break;
+
+                case TUSHUI_TRAINEE_1:
+                case TUSHUI_TRAINEE_2:
+                    if (me->GetVictim())
+                        DoCast(me->GetVictim(), SPELL_BLACKOUT_KICK, true);
+                    break;
+
+                }
+                ScheduleTraineeEvents();
+            }
+        }
+
+        void DamageTaken(Unit* attacker, uint32 &amount)
+        {
+            float tenPercent = me->GetMaxHealth() / 10;
+            if ((me->GetHealth() - amount) <= tenPercent)
+            {
+                amount = 0;
+                me->SetHealth(uint32(tenPercent));
+                ResetToNormal(attacker);
+            }
+        }
+
+    private :
+        EventMap events;
+
+        inline void ScheduleTraineeEvents()
+        {
+            events.ScheduleEvent(EVENT_TRAINEE_SPELL, urand(3500, 5500));
+        }
+
+        void ResetToNormal(Unit* attacker)
+        {
+            switch(me->GetEntry())
+            {
+            case HUOJIN_TRAINEE_1:
+            case HUOJIN_TRAINEE_2: // #todo
+                if (attacker)
+					me->MonsterSay("SAY_DEFEATED", LANG_UNIVERSAL, 0);
+                break;
+            case TUSHUI_TRAINEE_1:
+            case TUSHUI_TRAINEE_2:
+                if (attacker)
+                    me->MonsterSay("SAY_DEFEATED", LANG_UNIVERSAL, 0);
+                break;
+            }
+
+            events.Reset();
+            me->setFaction(35);
+            me->SetFullHealth();
+            me->DisappearAndDie();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* c) const
+    {
+        return new npc_trainee_stifled_prideAI(c);
+    }
+
+private:
+
+    // Enums
+    enum Quests
+    {
+        QUEST_THE_LESSON_OF_STIFLED_PRIDE = 29524
+    };
+
+    enum Npcs
+    {
+        HUOJIN_TRAINEE_1 = 54586,
+        HUOJIN_TRAINEE_2 = 65470,
+        TUSHUI_TRAINEE_1 = 54587,
+        TUSHUI_TRAINEE_2 = 65471,
+        NPC_QUEST_REWARD = 54789 // Spell 102384
+    };
+
+    enum Spells
+    {
+        SPELL_JAB               = 109079, // Huojin
+        SPELL_BLACKOUT_KICK     = 109080, // Tushui
+        SPELL_QUEST_KILL_CREDIT = 102384
+    };
+
+    enum Says
+    {
+        SAY_HUOJIN_DEFEAT_1 = -5458607,
+        SAY_HUOJIN_DEFEAT_2,
+        SAY_HUOJIN_DEFEAT_3,
+        SAY_HUOJIN_DEFEAT_4,
+        SAY_HUOJIN_DEFEAT_5,
+        SAY_HUOJIN_DEFEAT_6,
+        SAY_HUOJIN_DEFEAT_7,
+        SAY_HUOJIN_DEFEAT_8,
+
+        SAY_TUSHUI_DEFEAT_1 = -5458707,
+        SAY_TUSHUI_DEFEAT_2,
+        SAY_TUSHUI_DEFEAT_3,
+        SAY_TUSHUI_DEFEAT_4,
+        SAY_TUSHUI_DEFEAT_5,
+        SAY_TUSHUI_DEFEAT_6,
+        SAY_TUSHUI_DEFEAT_7,
+        SAY_TUSHUI_DEFEAT_8
+    };
+
+    enum Events
+    {
+        EVENT_TRAINEE_SPELL = 1
+    };
+
+    // Functions
+    void StartQuestEvent(Creature* me, Player* quester)
+    {
+        if (!me || !quester)
+            return;
+
+        if (me->IsInCombat())
+            return;
+
+        me->setFaction(14);
+        if (me->GetAI())
+        {
+            me->SetInCombatWith(quester);
+            me->GetAI()->AttackStart(quester);
+        }
+    }
+
+    // Variables
+    const char* m_gossipHelloMessage;
+};
+
 void AddSC_zone_wandering_island()
 {
     new npc_master_shang_xi();
@@ -840,4 +1049,5 @@ void AddSC_zone_wandering_island()
     new boss_jaomin_ro();
     new npc_aysa_lake_escort();
     new npc_aysa();
+    new npc_trainee_stifled_pride();
 }

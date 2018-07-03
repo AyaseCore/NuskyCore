@@ -11,30 +11,11 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-
-  # Dungeons
-
-  # Raids
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_Immerseus.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_Galakras.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_GeneralNazgrim.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_KorKron.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_IronJuggernaut.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_Norushen.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_Malkorok.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_ParagonsOfTheKlaxxi.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_ShaOfPride.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_SiegecrafterBlackfuse.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_SpoilsOfPandaria.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_TheFallenProtectors.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_Thok.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_GarroshHellscream.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/instance_SiegeOfOrgrimmar.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/SiegeOfOrgrimmar.h
-
-  # WorldBosses
-
-  # Zones
+  Pandaria/SiegeOfOrgrimmar/instance_siege_of_orgrimmar.cpp
+  Pandaria/SiegeOfOrgrimmar/siege_of_orgrimmar.cpp
+  Pandaria/SiegeOfOrgrimmar/siege_of_orgrimmar.h
+  Pandaria/SiegeOfOrgrimmar/boss_immerseus.cpp
+  Pandaria/SiegeOfOrgrimmar/boss_fallen_protectors.cpp
 
   Pandaria/boss_ordos.cpp
   Pandaria/zone_dread_wastes.cpp
