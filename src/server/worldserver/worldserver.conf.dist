@@ -1,8 +1,7 @@
 ################################################
-#   NuskyCore World Server configuration file    #
+#   NuskyCore World Server configuration file  #
 ################################################
 [worldserver]
-ConfVersion=2017091000
 
 ###################################################################################################
 # SECTION INDEX

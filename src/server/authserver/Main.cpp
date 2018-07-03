@@ -36,7 +36,7 @@
 #include "Database/DatabaseEnv.h"
 #include "Configuration/Config.h"
 #include "Log.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 #include "Util.h"
 #include "SignalHandler.h"
 #include "RealmList.h"
@@ -112,7 +112,7 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    NC_LOG_INFO("server.authserver", "%s (authserver)", _FULLVERSION);
+    NC_LOG_INFO("server.authserver", "%s (authserver)", GitRevision::GetFullVersion());
     NC_LOG_INFO("server.authserver", "<Ctrl-C> to stop.\n");
              
 	NC_LOG_INFO("server.authserver", "N)n   nn                 k)               C)ccc                          ");
@@ -126,18 +126,6 @@ extern int main(int argc, char** argv)
 	NC_LOG_INFO("server.authserver", "                                                                         ");
 
     NC_LOG_INFO("server.authserver", "Using configuration file %s.", configFile);
-
-    ///- Check the version of the configuration file
-    uint32 confVersion = sConfigMgr->GetIntDefault("ConfVersion", 0);
-    if (confVersion < NuskyAUTH_CONFIG_VERSION)
-    {
-        NC_LOG_INFO("server.authserver", "*****************************************************************************");
-        NC_LOG_INFO("server.authserver", " WARNING: Your authserver.conf version indicates your conf file is out of date!");
-        NC_LOG_INFO("server.authserver", "          Please check for updates, as your current default values may cause");
-        NC_LOG_INFO("server.authserver", "          strange behavior.");
-        NC_LOG_INFO("server.authserver", "*****************************************************************************");
-    }
-
     NC_LOG_WARN("server.authserver", "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)

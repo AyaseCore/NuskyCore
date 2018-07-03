@@ -24,7 +24,7 @@
 #include <ace/Sig_Handler.h>
 
 #include "Common.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 #include "SignalHandler.h"
 #include "World.h"
 #include "WorldRunnable.h"
@@ -128,7 +128,7 @@ int Master::Run()
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 
-    NC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", _FULLVERSION);
+    NC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", GitRevision::GetFullVersion());
     NC_LOG_INFO("server.worldserver", "<Ctrl-C> to stop.\n");
 
     NC_LOG_INFO("server.worldserver", "N)n   nn                 k)               C)ccc                          ");
@@ -140,17 +140,6 @@ int Master::Run()
     NC_LOG_INFO("server.worldserver", "                                     y)                                  ");
     NC_LOG_INFO("server.worldserver", "                                y)YYYY                                   ");
     NC_LOG_INFO("server.worldserver", "                                                                         ");
-
-    ///- Check the version of the configuration file
-    uint32 confVersion = sConfigMgr->GetIntDefault("ConfVersion", 0);
-    if (confVersion < NUSKYWORLD_CONFIG_VERSION)
-    {
-         NC_LOG_INFO("server.worldserver", "*****************************************************************************");
-         NC_LOG_INFO("server.worldserver", " WARNING: Your worldserver.conf version indicates your conf file is out of date!");
-         NC_LOG_INFO("server.worldserver", "          Please check for updates, as your current default values may cause");
-         NC_LOG_INFO("server.worldserver", "          strange behavior.");
-         NC_LOG_INFO("server.worldserver", "*****************************************************************************");
-    }
 
     /// worldserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
@@ -306,7 +295,7 @@ int Master::Run()
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
-    NC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
+    NC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master
@@ -496,7 +485,7 @@ bool Master::_StartDB()
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", _FULLVERSION, _HASH);        // One-time query
+    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
 
     sWorld->LoadDBVersion();
 

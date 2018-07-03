@@ -17,38 +17,55 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Core configuration options
-
-#ifndef Nusky_SYSTEMCONFIG_H
-#define Nusky_SYSTEMCONFIG_H
-
-#include "Define.h"
+#include "GitRevision.h"
 #include "revision.h"
 
-#define _PACKAGENAME "NuskyCore 5.4.8 18414"
+char const* GitRevision::GetHash()
+{
+    return _HASH;
+}
 
-// Format is YYYYMMDDRR where RR is the change in the conf file
-// for that day.
-#ifndef NUSKYWORLD_CONFIG_VERSION
-# define NUSKYWORLD_CONFIG_VERSION 2017091000
-#endif
-#ifndef NuskyAUTH_CONFIG_VERSION
-# define NuskyAUTH_CONFIG_VERSION 2017021900
-#endif
+char const* GitRevision::GetDate()
+{
+    return _DATE;
+}
 
-#if NUSKY_ENDIAN == NUSKY_BIGENDIAN
-# define _ENDIAN_STRING "big-endian"
-#else
-# define _ENDIAN_STRING "little-endian"
-#endif
+char const* GitRevision::GetBranch()
+{
+    return _BRANCH;
+}
 
 #if PLATFORM == PLATFORM_WINDOWS
-# ifdef _WIN64
-#  define _FULLVERSION _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Win64, " _BUILD_DIRECTIVE ")"
-# else
-#  define _FULLVERSION _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Win32, " _BUILD_DIRECTIVE ")"
-# endif
-#else
-#  define _FULLVERSION _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Unix, " _BUILD_DIRECTIVE ")"
+#  ifdef _WIN64
+#    define NUSKY_PLATFORM_STR "Win64"
+#  else
+#    define NUSKY_PLATFORM_STR "Win32"
+#  endif
+#else // PLATFORM
+#  define NUSKY_PLATFORM_STR "Unix"
 #endif
-#endif
+
+char const* GitRevision::GetFullVersion()
+{
+    return VER_COMPANYNAME_STR " rev. " VER_PRODUCTVERSION_STR " (" NUSKY_PLATFORM_STR ", " _BUILD_DIRECTIVE ")";
+}
+
+char const* GitRevision::GetCompanyNameStr()
+{
+    return VER_COMPANYNAME_STR;
+}
+
+char const* GitRevision::GetLegalCopyrightStr()
+{
+    return VER_LEGALCOPYRIGHT_STR;
+}
+
+char const* GitRevision::GetFileVersionStr()
+{
+    return VER_FILEVERSION_STR;
+}
+
+char const* GitRevision::GetProductVersionStr()
+{
+    return VER_PRODUCTVERSION_STR;
+}
