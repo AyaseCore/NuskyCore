@@ -38,7 +38,7 @@
 #include "Log.h"
 #include "Master.h"
 #include "RARunnable.h"
-#include "SFSoap.h"
+#include "NCSoap.h"
 #include "Timer.h"
 #include "Util.h"
 #include "AuthSocket.h"
@@ -267,7 +267,7 @@ int Master::Run()
 
     if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
     {
-        SFSoapRunnable* runnable = new SFSoapRunnable();
+        NCSoapRunnable* runnable = new NCSoapRunnable();
         runnable->SetListenArguments(sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878)));
         soapThread = new ACE_Based::Thread(runnable);
     }

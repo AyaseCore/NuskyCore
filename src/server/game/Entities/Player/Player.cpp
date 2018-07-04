@@ -26697,7 +26697,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
             }
 
             //Z given by moveinfo, LastZ, FallTime, WaterZ, MapZ, Damage, Safefall reduction
-            NC_LOG_DEBUG("entities.player", "FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d SF=%d", movementInfo.pos.GetPositionZ(), height, GetPositionZ(), movementInfo.jump.fallTime, height, damage, safe_fall);
+            NC_LOG_DEBUG("entities.player", "FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d NC=%d", movementInfo.pos.GetPositionZ(), height, GetPositionZ(), movementInfo.jump.fallTime, height, damage, safe_fall);
         }
     }
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute

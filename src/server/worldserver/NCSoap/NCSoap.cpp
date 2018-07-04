@@ -17,14 +17,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SFSoap.h"
+#include "NCSoap.h"
 #include "soapH.h"
 #include "soapStub.h"
 #include "World.h"
 #include "AccountMgr.h"
 #include "Log.h"
 
-void SFSoapRunnable::run()
+void NCSoapRunnable::run()
 {
     struct soap soap;
     soap_init(&soap);
@@ -59,7 +59,7 @@ void SFSoapRunnable::run()
     soap_done(&soap);
 }
 
-void SFSoapRunnable::process_message(ACE_Message_Block* mb)
+void NCSoapRunnable::process_message(ACE_Message_Block* mb)
 {
     ACE_TRACE (ACE_TEXT ("SOAPWorkingThread::process_message"));
 
@@ -155,6 +155,6 @@ struct Namespace namespaces[] =
     { "SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", NULL, NULL }, // must be second
     { "xsi", "http://www.w3.org/1999/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL },
     { "xsd", "http://www.w3.org/1999/XMLSchema",          "http://www.w3.org/*/XMLSchema", NULL },
-    { "ns1", "urn:SF", NULL, NULL },     // "ns1" namespace prefix
+    { "ns1", "urn:NC", NULL, NULL },     // "ns1" namespace prefix
     { NULL, NULL, NULL, NULL }
 };

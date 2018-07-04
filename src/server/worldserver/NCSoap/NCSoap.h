@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SFSoap_H
-#define _SFSoap_H
+#ifndef _NCSoap_H
+#define _NCSoap_H
 
 #include "Define.h"
 
@@ -26,10 +26,10 @@
 #include <ace/Task.h>
 #include <Threading.h>
 
-class SFSoapRunnable : public ACE_Based::Runnable
+class NCSoapRunnable : public ACE_Based::Runnable
 {
     public:
-        SFSoapRunnable() : _port(0) { }
+        NCSoapRunnable() : _port(0) { }
 
         void run() OVERRIDE;
 
